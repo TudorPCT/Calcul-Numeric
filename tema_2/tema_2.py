@@ -14,17 +14,32 @@ def choleski_decomposition(a, n, epsilon):
         for i in range(p + 1, n):
             a[i][p] = (a[i][p] - sum(d[k] * a[i][k] * a[p][k] for k in range(p))) / d[p]
 
-    return a, d
+    return d
 
 
-def compute_determinant(d):
+def compute_det(d):
     determinant = 1
     for i in range(len(d)):
-        determinant *= d[i][i]
+        determinant *= d[i]
     return determinant
 
 
 if __name__ == '__main__':
-    input_a = [[1, 2.5, 3], [2.5, 8.25, 15.5], [3, 15.5, 43]]
-    input_a, input_d = choleski_decomposition(np.array(input_a), 3, 0.0001)
+    size = 3
+    a = np.random.uniform(0, 20, size=(size, size))
+    a = a + a.T
+
+    for x in range(size):
+        a[x][x] = sum(a[x][j] if x != j else 0 for j in range(size)) + 1
+
+    a_init = a.copy()
+
+    d = choleski_decomposition(a, len(a), 10 ** -5)
+
+    l = np.tril(a, -1)
+    np.fill_diagonal(l, 1)
+    new_a = np.matmul(np.matmul(l, np.diag(d)), l.T)
+    print(np.allclose(a_init, new_a))
+
+
 
