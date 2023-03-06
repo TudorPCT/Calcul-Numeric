@@ -4,13 +4,16 @@ import PySimpleGUI as sg
 from tema_2 import choleski_decomposition, compute_det
 
 
+background_color = '#A47551'
+
+
 def init(size, m):
 
     a = np.random.uniform(0, 20, size=(size, size))
     a = a + a.T
 
-    for i in range(50):
-        a[i][i] = sum(a[i][j] if i != j else 0 for j in range(size)) + 1
+    for i in range(size):
+        a[i][i] = sum(abs(a[i][j]) if i != j else 0 for j in range(size)) + 1
 
     a_init = a.copy()
 
@@ -23,44 +26,48 @@ def init(size, m):
 
 
 def build_matrix(size, a_init, a, d):
+    global background_color
+
     l = np.tril(a, -1)
     np.fill_diagonal(l, 1)
 
     matrix_a = [[
         sg.InputText(
-            default_text=a_init[y][x],
+            default_text=round(a_init[y][x], 2),
             size=(10, 10),
             key=f"matrix_a_{x}_{y}",
             enable_events=True) if x >= y else
         sg.InputText(
-            default_text=a_init[y][x],
+            default_text=round(a_init[y][x], 2),
             size=(10, 10),
             key=f"matrix_a_{x}_{y}",
             disabled=True,
-            disabled_readonly_background_color="#523600")
+            disabled_readonly_background_color='#523A28')
         for x in range(size)] for y in range(size)]
     matrix_l = [[
         sg.Text(
-            l[y][x],
-            background_color="#523600",
-            size=(5, 1))
+            round(l[y][x], 2),
+            background_color=background_color,
+            size=(8, 1))
         for x in range(size)] for y in range(size)]
     matrix_d = [
         sg.Text(
-            d[x],
-            background_color="#523600",
-            size=(5, 1))
+            round(d[x], 2),
+            background_color=background_color,
+            size=(8, 1))
         for x in range(size)]
     matrix_l_t = [[
         sg.Text(
-            l[x][y],
-            background_color="#523600",
-            size=(5, 1))
+            round(l[x][y], 2),
+            background_color=background_color,
+            size=(8, 1))
         for x in range(size)] for y in range(size)]
     return matrix_a, matrix_l, matrix_d, matrix_l_t
 
 
 def build_layout(size, m, matrix_a, matrix_l, matrix_d, matrix_l_t, det_a):
+    global background_color
+
     layout = [
         [
             sg.Text('Matrix size: '),
@@ -85,8 +92,11 @@ def build_layout(size, m, matrix_a, matrix_l, matrix_d, matrix_l_t, det_a):
             matrix_l_t
         ],
         [
-            sg.Text(f'det(A) = det(L) * det(D) * det(LT) = {det_a}',
-                    background_color="#523600")
+            sg.Text(' det(A)', background_color=background_color), sg.Text('='),
+            sg.Text(' det(L)', background_color=background_color), sg.Text('*'),
+            sg.Text(' det(D)', background_color=background_color), sg.Text('*'),
+            sg.Text(' det(LT)', background_color=background_color), sg.Text('='),
+            sg.Text(f' {round(det_a, 2)}', background_color=background_color)
         ],
         [
             sg.Button('Compute'),
