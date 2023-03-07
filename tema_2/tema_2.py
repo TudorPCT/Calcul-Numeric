@@ -3,23 +3,17 @@ import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
-def is_valid(a, size, epsilon):
-
-    pos_def = [np.linalg.det(a[:i + 1, :i + 1]) > 0 for i in range(size)]
-
-    return np.allclose(a, a.T, epsilon) and np.all(pos_def)
-
-
 def choleski_decomposition(a, n, epsilon):
-    d = np.zeros(n)
+    d = np.zeros(n, dtype=np.float64)
 
-    if not is_valid(a, n, epsilon):
+    if not (len(a) == len(a[0]) == n or np.allclose(a, a.T, epsilon)):
         return None
 
     for p in range(n):
+
         d[p] = a[p][p] - sum(d[k] * a[p][k] ** 2 for k in range(p))
 
-        if abs(d[p]) < epsilon:
+        if abs(d[p]) < epsilon and abs(np.linalg.det(a[:p + 1, :p + 1])) <= epsilon:
             return None
 
         for i in range(p + 1, n):
@@ -47,20 +41,43 @@ def check_correctness(a_init, a, d):
     return True
 
 
+def solve_system(a, b, d, epsilon):
+    if not (len(a) == len(a[0]) == len(b) == len(d) or abs(compute_det(b)) < epsilon):
+        return None
+
+    x = np.zeros(len(a), dtype=np.float64)
+    for i in range(len(a)):
+        x[i] = b[i] - sum(a[i][j] * x[j] for j in range(i))
+
+    for i in range(len(a)):
+        x[i] /= d[i]
+
+    for i in range(len(a) - 1, -1, -1):
+        x[i] = x[i] - sum(a[i][j] * x[j] for j in range(i+1, len(a)))
+
+    return x
+
+
 if __name__ == '__main__':
 
     # Exercitiul 1
-    input_a = np.array([[1, 2.5, 3], [2.5, 8.25, 15.5], [3, 15.5, 43]])
+    # input_a = np.array([[1, 2.5, 3], [2.5, 8.25, 15.5], [3, 15.5, 43]])
+    input_a = np.array([[1, 3, 6], [3, 13, 28], [6, 28, 77]], dtype=np.float64)
+    input_b = np.array([3, 13, 28], dtype=np.float64)
     input_a_init = input_a.copy()
-    d = choleski_decomposition(input_a, len(input_a), 10 ** -5)
+    _m = 9
+
+    _d = choleski_decomposition(input_a, len(input_a), 10 ** -_m)
+
     print("New A:\n", input_a)
-    print("D:", d)
-    print("Correctness:", check_correctness(input_a_init, input_a, d))
+    print("D:", _d)
+    print("Correctness:", check_correctness(input_a_init, input_a, _d))
 
     # Exercitiul 2
-    print("det(A):", compute_det(d))
+    print("det(A):", compute_det(_d))
 
     # Exercitiul 3
+    print("x:", solve_system(input_a, input_b, _d, 10 ** -_m))
 
     # Exercitiul 4
 
@@ -73,14 +90,14 @@ if __name__ == '__main__':
 
     input_a = input_a + input_a.T
 
-    for x in range(size):
-        input_a[x][x] = sum(input_a[x][j] if x != j else 0 for j in range(size)) + 1
+    for _x in range(size):
+        input_a[_x][_x] = sum(input_a[_x][j] if _x != j else 0 for j in range(size)) + 1
 
     input_a_init = input_a.copy()
 
-    d = choleski_decomposition(input_a, len(input_a), 10 ** -5)
+    _d = choleski_decomposition(input_a, len(input_a), 10 ** -_m)
 
-    print("Correctness:", check_correctness(input_a_init, input_a, d))
+    print("Correctness for size = 150:", check_correctness(input_a_init, input_a, _d))
 
 
 
