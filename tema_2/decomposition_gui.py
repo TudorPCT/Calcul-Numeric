@@ -2,22 +2,22 @@ import numpy as np
 import PySimpleGUI as sg
 
 from tema_2 import choleski_decomposition, compute_det
-from tema_2 import solve_system
+from tema_2 import solve_system, lu_solution, norm_check
 
 background_color = '#A47551'
 
 
 def init_cd(size, m):
+    a = np.random.uniform(0, 100, size=(size, size))
 
-    a = np.random.uniform(0, 20, size=(size, size))
     a = a + a.T
 
-    for i in range(size):
-        a[i][i] = sum(abs(a[i][j]) if i != j else 0 for j in range(size)) + 1
+    for _x in range(size):
+        a[_x][_x] = sum(abs(a[_x][j]) if _x != j else 0 for j in range(size)) + 1
 
     a_init = a.copy()
 
-    d = choleski_decomposition(a, size, 10 ** -m)
+    d = choleski_decomposition(a, len(a), 10 ** -m)
 
     det_a = compute_det(d)
     matrix_a, matrix_l, matrix_d, matrix_l_t = build_matrix_cd(size, a_init, a, d)
@@ -26,20 +26,22 @@ def init_cd(size, m):
 
 
 def init_cds(size, m):
-    a = np.random.uniform(0, 20, size=(size, size))
+    a = np.random.uniform(0, 100, size=(size, size))
+
     a = a + a.T
 
-    for i in range(size):
-        a[i][i] = sum(abs(a[i][j]) if i != j else 0 for j in range(size)) + 1
+    for _x in range(size):
+        a[_x][_x] = sum(abs(a[_x][j]) if _x != j else 0 for j in range(size)) + 1
 
     b = np.random.uniform(0, 20, size=size)
     a_init = a.copy()
 
-    d = choleski_decomposition(a, size, 10 ** -m)
-    x = solve_system(a, b, d, 10 ** -m)
+    d = choleski_decomposition(a, len(a), 10 ** -m)
 
+    x = solve_system(a, b, d, 10 ** -m)
+    norm = norm_check(a_init, b, x)
     matrix_a, matrix_b, matrix_x = build_matrix_cds(size, a_init, b, x)
-    layout = build_layout_cds(size, m, matrix_a, matrix_b, matrix_x)
+    layout = build_layout_cds(size, m, matrix_a, matrix_b, matrix_x, norm)
     return a, b, x, matrix_a, matrix_b, matrix_x, layout
 
 
@@ -157,7 +159,7 @@ def build_layout_cd(size, m, matrix_a, matrix_l, matrix_d, matrix_l_t, det_a):
     return layout
 
 
-def build_layout_cds(size, m, matrix_a, matrix_b, matrix_x):
+def build_layout_cds(size, m, matrix_a, matrix_b, matrix_x, norm, default_combo="Choleski Decomposition"):
     global background_color
 
     layout = [
@@ -166,6 +168,10 @@ def build_layout_cds(size, m, matrix_a, matrix_b, matrix_x):
             sg.Spin([i for i in range(2, 100)], initial_value=size, key='size'),
             sg.Text('Epsilon power of -10: '),
             sg.Spin([i for i in range(5, 100)], initial_value=m, key='m')
+        ],
+        [
+            sg.Combo(["Choleski Decomposition", "LU Decomposition"],
+                     default_value=default_combo, key="dec_type")
         ],
         [
             [sg.Text('A'), sg.Text(''), sg.Text('')],
@@ -178,6 +184,10 @@ def build_layout_cds(size, m, matrix_a, matrix_b, matrix_x):
         [
             [sg.Text('X'), sg.Text(''), sg.Text('')],
             matrix_x
+        ],
+        [
+            sg.Text('Euclidean Norm', background_color=background_color), sg.Text('='),
+            sg.Text(f'{norm}', background_color=background_color)
         ],
         [
             sg.Button('Compute'),
@@ -245,7 +255,7 @@ def open_gui():
                 matrix_a, matrix_l, matrix_d, matrix_l_t = build_matrix_cd(size, a_init, a, d)
                 layout = build_layout_cd(size, m, matrix_a, matrix_l, matrix_d, matrix_l_t, det_a)
                 window.close()
-                window = sg.Window('Window Title', layout)
+                window = sg.Window('Choleski Decomposition', layout)
         elif event == 'Compute' and current_window == 'cds':
             size = int(values['size'])
             m = int(values['m'])
@@ -255,18 +265,26 @@ def open_gui():
                 b = get_input_vector(size, values)
                 if b is not None:
                     b_init = b.copy()
-                    d = choleski_decomposition(a, size, 10 ** -m)
-                    if d is None:
-                        sg.popup(f"Matrix is not positive definite!")
-                        continue
-                    x = solve_system(a, b, d, 10 ** -m)
-                    if x is None:
-                        sg.popup(f"Matrix is not positive definite!")
-                        continue
+                    if values['dec_type'] == "Choleski Decomposition":
+                        d = choleski_decomposition(a, size, 10 ** -m)
+                        if d is None:
+                            sg.popup(f"Matrix is not positive definite!")
+                            continue
+                        x = solve_system(a, b, d, 10 ** -m)
+                        if x is None:
+                            sg.popup(f"Matrix is not positive definite!")
+                            continue
+                    else:
+                        x = lu_solution(a, b)
+                        if x is None:
+                            sg.popup(f"Matrix is not positive definite!")
+                            continue
+                    norm = norm_check(a_init, b, x)
                     matrix_a, matrix_b, matrix_x = build_matrix_cds(size, a_init, b_init, x)
-                    layout = build_layout_cds(size, m, matrix_a, matrix_b, matrix_x)
+                    layout = build_layout_cds(size, m, matrix_a, matrix_b, matrix_x, norm, values['dec_type'])
+                    window_name = f"{values['dec_type']} System Solver"
                     window.close()
-                    window = sg.Window('Window Title', layout)
+                    window = sg.Window(window_name, layout)
         elif (event == 'Reset' and current_window == 'cd') or (event == 'Switch' and current_window == 'cds'):
             size = int(values['size'])
             m = int(values['m'])

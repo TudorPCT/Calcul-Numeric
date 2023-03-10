@@ -8,3 +8,11 @@ def compute_det(d):
 
 def solve_system(a, b, d, epsilon):
     return None
+
+
+def lu_solution(a, b):
+    return None
+
+
+def norm_check(a, b, x):
+    return None
