@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import scipy.linalg
 import warnings
@@ -86,7 +88,7 @@ def norm_check(a, b, x):
     norm = 0
     for i in norm_v:
         norm = norm + i*i
-
+    norm = math.sqrt(norm)
     return np.alltrue(norm <= pow(10, -9))
 
 
