@@ -22,7 +22,7 @@ def householder(a, n, b):
         for i in range(r, n):
             sigma = sigma + pow(a[i][r], 2)
         if sigma <= epsilon:
-            break
+            return None
 
         k = sqrt(sigma)
         if a[r][r] >= 0:
@@ -80,7 +80,7 @@ def solve_system(a, b, n):
 
 def solve_householder(a, s):
     b = get_b(a, s)
-    q = householder(a, len(a), b)
+    _ = householder(a, len(a), b)
     return solve_system(a, b, len(a))
 
 
@@ -113,8 +113,8 @@ def build_a_k_1(a_k, a_k_1, b):
     q = householder(a_k, len(a_k), b)
 
     for i in range(n):
-        for j in range(i, n):
-            a_k_1[i][j] = sum(a_k[i][k] * q[k][j] for k in range(n))
+        for j in range(n):
+            a_k_1[i][j] = sum(a_k[i][k] * q[k][j] for k in range(i, n))
             a_k_1[j][i] = a_k_1[i][j]
 
 
@@ -126,7 +126,7 @@ def compute_limit(a_k):
         np.copyto(aux, a_k)
         build_a_k_1(aux, a_k_1, b)
 
-        norm = np.linalg.norm(a_k_1 - a_k, ord='fro')
+        norm = np.linalg.norm(a_k_1 - a_k)
         if norm <= epsilon:
             return a_k_1
         a_k, a_k_1 = a_k_1, a_k
@@ -211,8 +211,3 @@ if __name__ == '__main__':
 
     limit = compute_limit(input_a)
     print("Limit:\n", limit)
-
-
-
-
-
