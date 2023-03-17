@@ -108,6 +108,30 @@ def compute_inv(a):
     return a_inv
 
 
+def build_a_k_1(a_k, a_k_1, b):
+    n = len(a_k)
+    q = householder(a_k, len(a_k), b)
+
+    for i in range(n):
+        for j in range(i, n):
+            a_k_1[i][j] = sum(a_k[i][k] * q[k][j] for k in range(n))
+            a_k_1[j][i] = a_k_1[i][j]
+
+
+def compute_limit(a_k):
+    b = np.zeros(len(a_k), dtype=np.float64)
+    aux = np.zeros((len(a_k), len(a_k)), dtype=np.float64)
+    a_k_1 = np.zeros((len(a_k), len(a_k)), dtype=np.float64)
+    while True:
+        np.copyto(aux, a_k)
+        build_a_k_1(aux, a_k_1, b)
+
+        norm = np.linalg.norm(a_k_1 - a_k, ord='fro')
+        if norm <= epsilon:
+            return a_k_1
+        a_k, a_k_1 = a_k_1, a_k
+
+
 if __name__ == '__main__':
     input_a = np.array([[0, 0, 4], [1, 2, 3], [0, 1, 2]], dtype=np.float64)
     input_s = np.array([[3], [2], [1]], dtype=np.float64)
@@ -175,6 +199,19 @@ if __name__ == '__main__':
     # print("XQR: ", x_qr_n)
     print("Norm6: ", compute_norm(x_householder_n - xqr_n) < 10 ** -6)
     print("=====================================")
+    print("Bonus")
+
+    size = 3
+    input_a = np.array([[0, 0, 4], [1, 2, 3], [0, 1, 2]], dtype=np.float64)
+
+    input_a = input_a + input_a.T
+
+    input_a_init = input_a.copy()
+    input_b = input_a, np.identity(size, dtype=np.float64)
+
+    limit = compute_limit(input_a)
+    print("Limit:\n", limit)
+
 
 
 
