@@ -115,7 +115,6 @@ def build_a_k_1(a_k, a_k_1, b):
     for i in range(n):
         for j in range(n):
             a_k_1[i][j] = sum(a_k[i][k] * q[k][j] for k in range(i, n))
-            a_k_1[j][i] = a_k_1[i][j]
 
 
 def compute_limit(a_k):
