@@ -1,26 +1,43 @@
-import re
+from tema_4.util import load_rare_matrix
 
 
 class RareMatrix:
-    def __init__(self, file_path):
-        self.path = file_path
-        self.data = {}
-        self.load_data()
-        self.size = 0
+    def __init__(self, path=None, epsilon=10**-8, matrix=None, size=None):
+        self.path = path
+        self.epsilon = epsilon
+        self.matrix, self.size = load_rare_matrix(self.path, epsilon) if matrix is None else (matrix, size)
 
-    def load_data(self):
-        with open(self.path, 'r') as f:
-            self.size = int(f.readline())
-            lines = f.readlines()
-            for line in lines:
+    def sum(self, b: "RareMatrix"):
 
-                line_split = line[:-1] if line[-1] == '\n' else line
-                line_split = re.split(r'\s*,\s', line_split.strip())
-                line_split[0] = float(line_split[0])
-                line_split[1] = int(line_split[1])
-                line_split[2] = int(line_split[2])
+        if self.size != b.size:
+            raise Exception("Vector sizes don't match")
 
-                if self.data.get(line_split[1]) is None:
-                    self.data[line_split[1]] = {}
-                self.data[line_split[1]][line_split[2]] = self.data[line_split[1]].get(line_split[2], 0) + line_split[0]
-        return self.data
+        result = {}
+
+        for i in self.matrix:
+            for j in self.matrix[i]:
+                if result.get(i) is None:
+                    result[i] = {}
+                result[i][j] = self.matrix[i][j] + b.matrix.get(i, {}).get(j, 0)
+
+        for i in b.matrix:
+            for j in b.matrix[i]:
+                if result.get(i) is None:
+                    result[i] = {}
+                if result[i].get(j) is None:
+                    result[i][j] = b.matrix[i][j]
+
+        return RareMatrix(matrix=result, size=self.size)
+
+    def equals(self, b):
+        if type(b) is not RareMatrix:
+            return False
+
+        for i in self.matrix:
+            for j in self.matrix[i]:
+                if abs(self.matrix[i][j] - b.matrix.get(i, {}).get(j, 0)) >= self.epsilon:
+                    return False
+        return True
+
+    def __str__(self):
+        return str(self.matrix)
