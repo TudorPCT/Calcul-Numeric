@@ -2,10 +2,10 @@ from tema_4.util import load_rare_matrix
 
 
 class RareMatrix:
-    def __init__(self, path=None, epsilon=10**-8, matrix=None, size=None):
+    def __init__(self, path=None, epsilon=10**-8, matrix={}, size=None):
         self.path = path
         self.epsilon = epsilon
-        self.matrix, self.size = load_rare_matrix(self.path, epsilon) if matrix is None else (matrix, size)
+        self.matrix, self.size = load_rare_matrix(self.path, epsilon) if size is None else (matrix, size)
 
     def sum(self, b: "RareMatrix"):
 
@@ -41,3 +41,12 @@ class RareMatrix:
 
     def __str__(self):
         return str(self.matrix)
+
+    def is_symmetrical(self):
+        for i in self.matrix:
+            for j in self.matrix[i]:
+                above_main_diagonal = self.matrix.get(i, {}).get(j, 0)
+                below_main_diagonal = self.matrix.get(j, {}).get(i, 0)
+                if abs(above_main_diagonal - below_main_diagonal) >= self.epsilon:
+                    return False
+        return True
