@@ -1,8 +1,10 @@
+import numpy as np
+import numpy.linalg
+
 from tema_4.RareMatrix import RareMatrix
-from tema_5.symmetrical_rare_matrix import generate_sym_rare_matrix, power_iteration
+from symmetrical_rare_matrix import generate_sym_rare_matrix, power_iteration
 
 if __name__ == '__main__':
-
     # print("Exemplu video")
     # m = RareMatrix(path='./surse/m_test.txt')
     # result_1 = power_iteration(m)
@@ -39,9 +41,29 @@ if __name__ == '__main__':
 
     print("----------------------------------------------------")
 
-    print("Exemplu din fisier - 2023")
-    m_2023 = RareMatrix(path='./surse/m_rar_sim_2023_2023.txt')
-    result_6 = power_iteration(m_2023)
-    print("Lambda: ", result_6[0])
-    # print("V: ", result_6[1])
-    print("Nr iteratii: ", result_6[2])
+    # print("Exemplu din fisier - 2023")
+    # m_2023 = RareMatrix(path='./surse/m_rar_sim_2023_2023.txt')
+    # result_6 = power_iteration(m_2023)
+    # print("Lambda: ", result_6[0])
+    # # print("V: ", result_6[1])
+    # print("Nr iteratii: ", result_6[2])
+
+    print("----------------------------------------------------")
+
+    classic_matrix = np.array([[1, 1], [1, 0], [0, 1]], dtype=float)
+    u, s, vh = numpy.linalg.svd(classic_matrix, full_matrices=True)
+    print("u:\n", u)
+    print("s:\n", s)
+    print("vh:\n", vh)
+    print("valori singulare:\n", s)
+    print("rang A:\n", len(s))
+    print("nr conditionare a matricei:\n", np.max(s) / np.min(s))
+    # si = np.zeros_like(classic_matrix, dtype=float)
+    # print(s.shape)
+    # print(si)
+    # si[:min(classic_matrix.shape)] = 1 / s[:min(classic_matrix.shape)]
+    # print(si)
+    # si = si.T
+    # print(si)
+    # ai = vh.T @ si @ u.T
+    # print("pseudo-inversa MP a lui a:\n", ai)
