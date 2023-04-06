@@ -56,14 +56,23 @@ if __name__ == '__main__':
     print("s:\n", s)
     print("vh:\n", vh)
     print("valori singulare:\n", s)
-    print("rang A:\n", len(s))
+    rang = len(s)
+    print("rang A:\n", rang)
     print("nr conditionare a matricei:\n", np.max(s) / np.min(s))
-    # si = np.zeros_like(classic_matrix, dtype=float)
-    # print(s.shape)
-    # print(si)
-    # si[:min(classic_matrix.shape)] = 1 / s[:min(classic_matrix.shape)]
-    # print(si)
-    # si = si.T
-    # print(si)
-    # ai = vh.T @ si @ u.T
-    # print("pseudo-inversa MP a lui a:\n", ai)
+    # pseudoinversa Moore-Penrose a matricei A
+    si = np.zeros_like(classic_matrix, dtype=float)
+    for i in range(len(s)):
+        si[i][i] = 1/s[i]
+    si = si.T
+    print("si:\n", si)
+    ai = np.dot(np.dot(vh.T, si), u.T)
+    print("pseudo-inversa MP a lui a:\n", ai)
+    
+    # b = np.array([[7], [8], [9]], dtype=float)
+    # system_sol = np.dot(ai, b)
+    # print("xi:\n", system_sol)
+    # print(classic_matrix)
+    # print(np.dot(classic_matrix, system_sol))
+    #
+    # norm = np.linalg.norm(b - classic_matrix.dot(system_sol))
+    # print(norm)
