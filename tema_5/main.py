@@ -1,8 +1,19 @@
 import numpy as np
 import numpy.linalg
+from numpy.linalg import inv
 
 from tema_4.RareMatrix import RareMatrix
 from symmetrical_rare_matrix import generate_sym_rare_matrix, power_iteration
+
+
+def norm1_check(x, y):
+    norms = np.sum(np.abs(x-y), axis=0)
+    norm1 = np.max(norms)
+    print(norm1)
+    if norm1 < pow(10, -9):
+        return True
+    return False
+
 
 if __name__ == '__main__':
     # print("Exemplu video")
@@ -56,18 +67,23 @@ if __name__ == '__main__':
     print("s:\n", s)
     print("vh:\n", vh)
     print("valori singulare:\n", s)
+    # rang
+    print("rang-biblioteca:\n", np.linalg.matrix_rank(classic_matrix))
     rang = len(s)
-    print("rang A:\n", rang)
+    print("rang -SVD:\n", rang)
+
+    # nr conditionare a matricei
+    print("nr conditionare a matricei-biblioteca:\n", np.linalg.cond(classic_matrix))
     print("nr conditionare a matricei:\n", np.max(s) / np.min(s))
     # pseudoinversa Moore-Penrose a matricei A
     si = np.zeros_like(classic_matrix, dtype=float)
     for i in range(len(s)):
-        si[i][i] = 1/s[i]
+        si[i][i] = 1 / s[i]
     si = si.T
     print("si:\n", si)
     ai = np.dot(np.dot(vh.T, si), u.T)
     print("pseudo-inversa MP a lui a:\n", ai)
-    
+
     # b = np.array([[7], [8], [9]], dtype=float)
     # system_sol = np.dot(ai, b)
     # print("xi:\n", system_sol)
@@ -76,3 +92,8 @@ if __name__ == '__main__':
     #
     # norm = np.linalg.norm(b - classic_matrix.dot(system_sol))
     # print(norm)
+
+    # matricea pseudo-inversa in sensul celor mai mici patrate
+    aj = inv(np.dot(classic_matrix.T, classic_matrix)) @ classic_matrix.T
+    print("matricea pseudo-inversa in sensul celor mai mici patrate;\n", aj)
+    print(norm1_check(ai, aj))
