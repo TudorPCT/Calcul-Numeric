@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import numpy.linalg
 from numpy.linalg import inv
@@ -7,10 +9,21 @@ from symmetrical_rare_matrix import generate_sym_rare_matrix, power_iteration
 
 
 def norm1_check(x, y):
-    norms = np.sum(np.abs(x-y), axis=0)
+    norms = np.sum(np.abs(x - y), axis=0)
     norm1 = np.max(norms)
     print(norm1)
     if norm1 < pow(10, -9):
+        return True
+    return False
+
+
+def norm2_check(x, y):
+    norm2 = 0
+    diff = x - y
+    for i in diff:
+        norm2 = norm2 + i * i
+    norm2 = math.sqrt(norm2)
+    if norm2 < pow(10, -9):
         return True
     return False
 
@@ -84,14 +97,13 @@ if __name__ == '__main__':
     ai = np.dot(np.dot(vh.T, si), u.T)
     print("pseudo-inversa MP a lui a:\n", ai)
 
-    # b = np.array([[7], [8], [9]], dtype=float)
-    # system_sol = np.dot(ai, b)
-    # print("xi:\n", system_sol)
-    # print(classic_matrix)
-    # print(np.dot(classic_matrix, system_sol))
-    #
-    # norm = np.linalg.norm(b - classic_matrix.dot(system_sol))
-    # print(norm)
+    # xi -solutia sistemului
+    b = np.array([[7], [8], [9]], dtype=float)
+    system_sol = np.dot(ai, b)
+    print("xi:\n", system_sol)
+    print(classic_matrix)
+    print(np.dot(classic_matrix, system_sol))
+    print(norm2_check(b, classic_matrix@system_sol))
 
     # matricea pseudo-inversa in sensul celor mai mici patrate
     aj = inv(np.dot(classic_matrix.T, classic_matrix)) @ classic_matrix.T
