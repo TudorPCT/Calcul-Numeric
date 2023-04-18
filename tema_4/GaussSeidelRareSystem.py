@@ -1,9 +1,7 @@
-import re
-
 import numpy as np
 
 from tema_4.RareMatrix import RareMatrix
-from tema_4.util import load_rare_matrix, load_vector
+from tema_4.util import load_vector
 
 
 class GaussSeidelRareSystem:
@@ -47,14 +45,14 @@ class GaussSeidelRareSystem:
             err = 0
 
             for index, x in enumerate(self.solution):
-                olx_x = x[0]
+                old_x = x[0]
 
                 x[0] = (self.b[index][0] -
-                     sum([self.a.matrix[index][j] * self.solution[j]
-                         for j in self.a.matrix[index] if j != index])) \
+                        sum([self.a.matrix[index][j] * self.solution[j]
+                             for j in self.a.matrix[index] if j != index])) \
                     / self.a.matrix[index][index]
 
-                err += abs(olx_x - x[0])
+                err += abs(old_x - x[0])
 
             self.gauss_seidel_iterations += 1
 
@@ -77,5 +75,3 @@ class GaussSeidelRareSystem:
                              for j in self.a.matrix[i]]) -
                         self.b[i][0])
                     for i in self.a.matrix])
-
-

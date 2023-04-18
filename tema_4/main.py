@@ -1,18 +1,16 @@
-import numpy as np
-
 from tema_4.GaussSeidelRareSystem import GaussSeidelRareSystem
 from tema_4.RareMatrix import RareMatrix
 
 epsilon = 10 ** -8
 
 if __name__ == '__main__':
-    print("-------------------------------------------")
-    print("Exemplu laborator")
-    a_test = GaussSeidelRareSystem("a_test.txt", "b_test.txt", 10000, epsilon)
-
-    print(a_test.a)
-    print(a_test.b)
-    print(a_test.solve())
+    # print("-------------------------------------------")
+    # print("Exemplu laborator")
+    # a_test = GaussSeidelRareSystem("a_test.txt", "b_test.txt", 10000, epsilon)
+    #
+    # print(a_test.a)
+    # print(a_test.b)
+    # print(a_test.solve())
 
     print("-------------------------------------------")
     print("Exemplu 1")
@@ -49,10 +47,13 @@ if __name__ == '__main__':
     print("-------------------------------------------")
     print("Exemplu 5")
 
-    s_5 = GaussSeidelRareSystem("./surse/a_5.txt", "./surse/b_5.txt", 10000, epsilon)
-    print(s_5.solve())
-    print("Norma: ", s_5.norm)
-    print("Iteratii: ", s_5.gauss_seidel_iterations)
+    try:
+        s_5 = GaussSeidelRareSystem("./surse/a_5.txt", "./surse/b_5.txt", 10000, epsilon)
+        print(s_5.solve())
+        print("Norma: ", s_5.norm)
+        print("Iteratii: ", s_5.gauss_seidel_iterations)
+    except Exception as e:
+        print(e)
 
     print("-------------------------------------------")
     print("Bonus")
@@ -61,4 +62,3 @@ if __name__ == '__main__':
     b = RareMatrix("./surse/b.txt", epsilon)
     aplusb = RareMatrix("./surse/aplusb.txt", epsilon)
     print(aplusb.equals(a.sum(b)))
-

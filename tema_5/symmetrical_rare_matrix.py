@@ -1,6 +1,4 @@
-import math
 import random
-import re
 
 import numpy as np
 
@@ -51,12 +49,12 @@ def power_iteration(a: RareMatrix, epsilon=10**-9, kmax=1000000):
 
     v = v_init(a.size)
     w = compute_w(a, v)
-    r = (w.T @ v)[0][0]
+    r = (w.T @ v)
     k = 0
     while True:
         v = w / np.linalg.norm(w)
         w = compute_w(a, v)
-        r = (w.T @ v)[0][0]
+        r = (w.T @ v)
         k += 1
 
         if np.linalg.norm(w - r * v) <= a.size * epsilon or k > kmax:
